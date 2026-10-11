@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+  <title>My Bingo</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px 12px;
+      background: #061522;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    .header {
+      background: linear-gradient(120deg, #173b62, #087e83);
+      padding: 25px 10px;
+      border-radius: 18px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    .balance {
+      background: #17334c;
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #numbers {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .number {
+      border: 1px solid #47769b;
+      border-radius: 9px;
+      background: #17436a;
+      color: white;
+      padding: 12px 0;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .number.selected {
+      background: #12a878;
+      border-color: #64edba;
+    }
+
+    .number:disabled {
+      opacity: 0.4;
+    }
+
+    #play {
+      width: 100%;
+      margin-top: 22px;
+      padding: 16px;
+      border: none;
+      border-radius: 30px;
+      background: #14b981;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    #message {
+      text-align: center;
+      margin-top: 18px;
+      line-height: 1.5;
+    }
+
+    .hint {
+      color: #b5c9d9;
+      text-align: center;
+      margin: 18px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <h1>AB BINGO</h1>
+    <p>My First Bingo Game</p>
+  </div>
+
+  <div class="balance">
+    Virtual Points: <strong id="points">100</strong>
+  </div>
+
+  <h3>Select numbers (0/4)</h3>
+  <p class="hint">Choose up to 4 numbers from 1 to 100.</p>
+
+  <div id="numbers"></div>
+
+  <button id="play">Play Game</button>
+
+  <div id="message">
+    Select your numbers to begin!
+  </div>
+
+  <script>
+    let selected = [];
+    let points = 100;
+    let playing = false;
+
+    const grid = document.getElementById("numbers");
+    const message = document.getElementById("message");
+    const playButton = document.getElementById("play");
+
+    for (let i = 1; i <= 100; i++) {
+      const button = document.createElement("button");
+
+      button.textContent = i;
+      button.className = "number";
+
+      button.addEventListener("click", function () {
+        if (playing) return;
+
+        if (selected.includes(i)) {
+          selected = selected.filter(n => n !== i);
+          button.classList.remove("selected");
+        } else {
+          if (selected.length >= 4) {
+            message.textContent = "Choose only 4 numbers!";
+            return;
+          }
+
+          selected.push(i);
+          button.classList.add("selected");
+        }
+
+        document.querySelector("h3").textContent =
+          "Select numbers (" + selected.length + "/4)";
+
+        message.textContent =
+          "Selected: " + selected.join(", ");
+      });
+
+      grid.appendChild(button);
+    }
+
+    playButton.addEventListener("click", function () {
+      if (playing) return;
+
+      if (selected.length !== 4) {
+        message.textContent = "Please select 4 numbers first.";
+        return;
+      }
+
+      if (points < 10) {
+        message.textContent = "Not enough virtual points!";
+        return;
+      }
+
+      playing = true;
+      points -= 10;
+      document.getElementById("points").textContent = points;
+
+      const drawn = Math.floor(Math.random() * 100) + 1;
+
+      if (selected.includes(drawn)) {
+        points += 30;
+        message.textContent =
+          "🎉 You matched number " + drawn +
+          "! You earned 30 virtual points.";
+      } else {
+        message.textContent =
+          "Number drawn: " + drawn +
+          ". No match this time!";
+      }
+
+      document.getElementById("points").textContent = points;
+
+      playButton.textContent = "Play Again";
+
+      selected = [];
+      playing = false;
+
+      document.querySelectorAll(".number").forEach(button => {
+        button.classList.remove("selected");
+      });
+
+      document.querySelector("h3").textContent =
+        "Select numbers (0/4)";
+    });
+  </script>
+
+</body>
+</html>
