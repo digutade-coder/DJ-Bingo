@@ -2,204 +2,374 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
-  <title>My Bingo</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      padding: 20px 12px;
-      background: #061522;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
-
-    .header {
-      background: linear-gradient(120deg, #173b62, #087e83);
-      padding: 25px 10px;
-      border-radius: 18px;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 30px;
-    }
-
-    .balance {
-      background: #17334c;
-      border-radius: 12px;
-      padding: 15px;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    #numbers {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 7px;
-    }
-
-    .number {
-      border: 1px solid #47769b;
-      border-radius: 9px;
-      background: #17436a;
-      color: white;
-      padding: 12px 0;
-      font-size: 16px;
-      font-weight: bold;
-    }
-
-    .number.selected {
-      background: #12a878;
-      border-color: #64edba;
-    }
-
-    .number:disabled {
-      opacity: 0.4;
-    }
-
-    #play {
-      width: 100%;
-      margin-top: 22px;
-      padding: 16px;
-      border: none;
-      border-radius: 30px;
-      background: #14b981;
-      color: white;
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    #message {
-      text-align: center;
-      margin-top: 18px;
-      line-height: 1.5;
-    }
-
-    .hint {
-      color: #b5c9d9;
-      text-align: center;
-      margin: 18px 0;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJ-Bingo</title>
+<style>
+:root {
+  --bg: #07111f;
+  --panel: #101e30;
+  --card: #16283e;
+  --blue: #16c7e8;
+  --purple: #8b5cf6;
+  --yellow: #ffd43b;
+  --text: #f4f7ff;
+  --muted: #a8b6ca;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+  padding-bottom: 90px;
+}
+header {
+  padding: 24px 18px;
+  background: linear-gradient(135deg, #152b50, #073c4b, #34205c);
+  border-bottom: 1px solid #24415e;
+  text-align: center;
+}
+header h1 { margin: 0; font-size: 30px; }
+header p { color: #c5d8ed; margin-bottom: 0; }
+.points {
+  margin: 16px;
+  padding: 17px;
+  border: 1px solid #24506a;
+  border-radius: 15px;
+  background: var(--panel);
+  text-align: center;
+}
+.points strong { color: var(--yellow); font-size: 25px; }
+main { padding: 0 16px 20px; }
+.page { display: none; }
+.page.active { display: block; }
+h2 { font-size: 22px; }
+.card {
+  background: var(--panel);
+  border: 1px solid #22384f;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.muted { color: var(--muted); line-height: 1.5; }
+button, input { font: inherit; }
+.btn {
+  background: var(--blue);
+  color: #04121e;
+  border: 0;
+  padding: 12px 18px;
+  border-radius: 11px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.btn:disabled { opacity: .45; }
+.btn.secondary { background: var(--purple); color: white; }
+.btn.yellow { background: var(--yellow); }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 7px;
+}
+.num {
+  min-height: 45px;
+  border-radius: 9px;
+  background: #183653;
+  color: white;
+  border: 1px solid #315775;
+  font-weight: bold;
+}
+.num.selected {
+  background: var(--blue);
+  color: #06131d;
+  border-color: white;
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.result {
+  padding: 14px;
+  background: #0b2938;
+  border-radius: 12px;
+  margin: 14px 0;
+  line-height: 1.5;
+}
+input {
+  width: 100%;
+  background: #091727;
+  color: white;
+  border: 1px solid #36506a;
+  padding: 12px;
+  border-radius: 10px;
+  margin: 8px 0 12px;
+}
+nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  background: #0c1828;
+  border-top: 1px solid #2b4057;
+  padding: 8px 3px max(8px, env(safe-area-inset-bottom));
+  z-index: 5;
+}
+nav button {
+  background: transparent;
+  color: var(--muted);
+  border: 0;
+  padding: 8px 1px;
+  font-size: 11px;
+  border-radius: 10px;
+}
+nav button span {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+nav button.active {
+  color: var(--blue);
+  background: #102b40;
+}
+.small { font-size: 13px; }
+</style>
 </head>
-
 <body>
 
-  <div class="header">
-    <h1>AB BINGO</h1>
-    <p>My First Bingo Game</p>
-  </div>
+<header>
+  <h1>🎮 DJ-BINGO</h1>
+  <p>Your game. Your style.</p>
+</header>
 
-  <div class="balance">
-    Virtual Points: <strong id="points">100</strong>
-  </div>
+<div class="points">
+  <div>YOUR VIRTUAL POINTS</div>
+  <strong id="balance">100</strong>
+  <div class="muted small">Demo points only — no real money</div>
+</div>
 
-  <h3>Select numbers (0/4)</h3>
-  <p class="hint">Choose up to 4 numbers from 1 to 100.</p>
+<main>
+  <section id="games" class="page active">
+    <h2>🎯 Games</h2>
+    <div class="card">
+      <div class="row">
+        <div>
+          <h3>🎱 Classic Bingo</h3>
+          <p class="muted">Choose up to 4 numbers from 1–100.</p>
+        </div>
+        <strong style="color:var(--yellow)">10 pts</strong>
+      </div>
+      <div class="muted small" id="chosen">Selected: 0/4</div>
+      <div class="grid" id="numberGrid"></div>
+      <div class="result" id="result" aria-live="polite">
+        Choose your numbers, then press Play.
+      </div>
+      <button class="btn yellow" id="playBtn" onclick="playGame()">
+        PLAY — 10 POINTS
+      </button>
+      <button class="btn secondary" onclick="clearSelection()">Clear</button>
+    </div>
+  </section>
 
-  <div id="numbers"></div>
+  <section id="wallet" class="page">
+    <h2>👛 Wallet</h2>
+    <div class="card">
+      <p class="muted">Your demo balance</p>
+      <h1><span id="walletBalance">100</span> pts</h1>
+      <p class="muted">Points are for this demo only. Deposits and withdrawals are not available.</p>
+      <button class="btn" onclick="resetDemo()">Reset demo points</button>
+    </div>
+  </section>
 
-  <button id="play">Play Game</button>
+  <section id="missions" class="page">
+    <h2>🏆 Missions</h2>
+    <div class="card">
+      <h3>🎮 First Visit</h3>
+      <p class="muted">Visit your Bingo game.</p>
+      <div id="visitStatus">Reward: 5 demo points</div>
+      <button class="btn" id="visitBtn" onclick="claimVisit()">Claim reward</button>
+    </div>
+    <div class="card">
+      <h3>🎱 Try a Game</h3>
+      <p class="muted">Play one round of Bingo.</p>
+      <div id="gameStatus">Reward: 5 demo points</div>
+      <button class="btn" id="gameRewardBtn" onclick="claimGame()" disabled>Claim reward</button>
+    </div>
+  </section>
 
-  <div id="message">
-    Select your numbers to begin!
-  </div>
+  <section id="leaderboard" class="page">
+    <h2>🥇 Leaderboard</h2>
+    <p class="muted">Sample players for display only. These are not real player rankings.</p>
+    <div class="card row"><span>🥇 Demo Player A</span><strong>250 pts</strong></div>
+    <div class="card row"><span>🥈 Demo Player B</span><strong>180 pts</strong></div>
+    <div class="card row"><span>🥉 Demo Player C</span><strong>120 pts</strong></div>
+    <div class="card row"><span>🎮 You</span><strong id="leaderBalance">100 pts</strong></div>
+  </section>
 
-  <script>
-    let selected = [];
-    let points = 100;
-    let playing = false;
+  <section id="profile" class="page">
+    <h2>👤 Profile</h2>
+    <div class="card">
+      <p class="muted">Your display name</p>
+      <input id="playerName" maxlength="24" placeholder="Enter your name">
+      <button class="btn" onclick="saveName()">Save name</button>
+      <div class="result" id="profileMessage">Welcome to DJ-Bingo!</div>
+      <p class="muted">Rounds played: <strong id="rounds">0</strong></p>
+      <p class="muted">Game type: Virtual-points demo</p>
+    </div>
+  </section>
+</main>
 
-    const grid = document.getElementById("numbers");
-    const message = document.getElementById("message");
-    const playButton = document.getElementById("play");
+<nav>
+  <button class="active" onclick="showPage('games',this)"><span>🎮</span>Games</button>
+  <button onclick="showPage('wallet',this)"><span>👛</span>Wallet</button>
+  <button onclick="showPage('missions',this)"><span>☷</span>Missions</button>
+  <button onclick="showPage('leaderboard',this)"><span>🏆</span>Ranks</button>
+  <button onclick="showPage('profile',this)"><span>👤</span>Profile</button>
+</nav>
 
-    for (let i = 1; i <= 100; i++) {
-      const button = document.createElement("button");
+<script>
+const START_POINTS = 100;
+const PLAY_COST = 10;
+const WIN_REWARD = 30;
+let balance = loadNumber("dj_balance", START_POINTS);
+let selected = [];
+let rounds = loadNumber("dj_rounds", 0);
+let visitClaimed = localStorage.getItem("dj_visit") === "yes";
+let gameClaimed = localStorage.getItem("dj_game") === "yes";
 
-      button.textContent = i;
-      button.className = "number";
-
-      button.addEventListener("click", function () {
-        if (playing) return;
-
-        if (selected.includes(i)) {
-          selected = selected.filter(n => n !== i);
-          button.classList.remove("selected");
-        } else {
-          if (selected.length >= 4) {
-            message.textContent = "Choose only 4 numbers!";
-            return;
-          }
-
-          selected.push(i);
-          button.classList.add("selected");
-        }
-
-        document.querySelector("h3").textContent =
-          "Select numbers (" + selected.length + "/4)";
-
-        message.textContent =
-          "Selected: " + selected.join(", ");
-      });
-
-      grid.appendChild(button);
+function loadNumber(key, fallback) {
+  const value = Number(localStorage.getItem(key));
+  return localStorage.getItem(key) === null ? fallback : value;
+}
+function saveState() {
+  localStorage.setItem("dj_balance", balance);
+  localStorage.setItem("dj_rounds", rounds);
+}
+function updateBalance() {
+  document.getElementById("balance").textContent = balance;
+  document.getElementById("walletBalance").textContent = balance;
+  document.getElementById("leaderBalance").textContent = balance + " pts";
+  document.getElementById("rounds").textContent = rounds;
+  document.getElementById("playBtn").disabled = balance < PLAY_COST;
+}
+function makeGrid() {
+  const grid = document.getElementById("numberGrid");
+  for (let n = 1; n <= 100; n++) {
+    const button = document.createElement("button");
+    button.className = "num";
+    button.textContent = n;
+    button.type = "button";
+    button.onclick = () => toggleNumber(n, button);
+    grid.appendChild(button);
+  }
+}
+function toggleNumber(n, button) {
+  if (selected.includes(n)) {
+    selected = selected.filter(x => x !== n);
+    button.classList.remove("selected");
+  } else {
+    if (selected.length >= 4) {
+      document.getElementById("result").textContent =
+        "You can select only 4 numbers. Remove one first.";
+      return;
     }
-
-    playButton.addEventListener("click", function () {
-      if (playing) return;
-
-      if (selected.length !== 4) {
-        message.textContent = "Please select 4 numbers first.";
-        return;
-      }
-
-      if (points < 10) {
-        message.textContent = "Not enough virtual points!";
-        return;
-      }
-
-      playing = true;
-      points -= 10;
-      document.getElementById("points").textContent = points;
-
-      const drawn = Math.floor(Math.random() * 100) + 1;
-
-      if (selected.includes(drawn)) {
-        points += 30;
-        message.textContent =
-          "🎉 You matched number " + drawn +
-          "! You earned 30 virtual points.";
-      } else {
-        message.textContent =
-          "Number drawn: " + drawn +
-          ". No match this time!";
-      }
-
-      document.getElementById("points").textContent = points;
-
-      playButton.textContent = "Play Again";
-
-      selected = [];
-      playing = false;
-
-      document.querySelectorAll(".number").forEach(button => {
-        button.classList.remove("selected");
-      });
-
-      document.querySelector("h3").textContent =
-        "Select numbers (0/4)";
-    });
-  </script>
-
+    selected.push(n);
+    button.classList.add("selected");
+  }
+  document.getElementById("chosen").textContent =
+    "Selected: " + selected.length + "/4";
+}
+function clearSelection() {
+  selected = [];
+  document.querySelectorAll(".num").forEach(b => b.classList.remove("selected"));
+  document.getElementById("chosen").textContent = "Selected: 0/4";
+  document.getElementById("result").textContent = "Choose your numbers, then press Play.";
+}
+function playGame() {
+  if (selected.length !== 4) {
+    document.getElementById("result").textContent = "Please select exactly 4 numbers first.";
+    return;
+  }
+  if (balance < PLAY_COST) {
+    document.getElementById("result").textContent = "Not enough demo points. Reset them in Wallet.";
+    return;
+  }
+  balance -= PLAY_COST;
+  rounds++;
+  const drawn = Math.floor(Math.random() * 100) + 1;
+  const won = selected.includes(drawn);
+  if (won) balance += WIN_REWARD;
+  document.getElementById("result").innerHTML =
+    "🎱 Number drawn: <strong>" + drawn + "</strong><br>" +
+    (won
+      ? "🎉 You matched! You earned 30 demo points."
+      : "Not a match this time. Try again!") +
+    "<br><span class='muted small'>This is a simple demo game, not a full traditional Bingo round.</span>";
+  if (!gameClaimed) document.getElementById("gameRewardBtn").disabled = false;
+  saveState();
+  updateBalance();
+}
+function showPage(id, button) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+  button.classList.add("active");
+}
+function resetDemo() {
+  if (!confirm("Reset demo points to 100 and rounds to zero?")) return;
+  balance = START_POINTS;
+  rounds = 0;
+  saveState();
+  updateBalance();
+}
+function claimVisit() {
+  if (visitClaimed) return;
+  balance += 5;
+  visitClaimed = true;
+  localStorage.setItem("dj_visit", "yes");
+  document.getElementById("visitStatus").textContent = "Reward claimed!";
+  document.getElementById("visitBtn").disabled = true;
+  saveState();
+  updateBalance();
+}
+function claimGame() {
+  if (gameClaimed || rounds < 1) return;
+  balance += 5;
+  gameClaimed = true;
+  localStorage.setItem("dj_game", "yes");
+  document.getElementById("gameStatus").textContent = "Reward claimed!";
+  document.getElementById("gameRewardBtn").disabled = true;
+  saveState();
+  updateBalance();
+}
+function saveName() {
+  const name = document.getElementById("playerName").value.trim();
+  if (!name) {
+    document.getElementById("profileMessage").textContent = "Please enter a name first.";
+    return;
+  }
+  localStorage.setItem("dj_name", name);
+  document.getElementById("profileMessage").textContent = "Welcome, " + name + "!";
+}
+function loadProfile() {
+  const name = localStorage.getItem("dj_name") || "";
+  document.getElementById("playerName").value = name;
+  if (name) document.getElementById("profileMessage").textContent = "Welcome back, " + name + "!";
+  if (visitClaimed) {
+    document.getElementById("visitStatus").textContent = "Reward claimed!";
+    document.getElementById("visitBtn").disabled = true;
+  }
+  if (gameClaimed) {
+    document.getElementById("gameStatus").textContent = "Reward claimed!";
+    document.getElementById("gameRewardBtn").disabled = true;
+  }
+}
+makeGrid();
+loadProfile();
+updateBalance();
+</script>
 </body>
 </html>
